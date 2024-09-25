@@ -1,6 +1,8 @@
 import { spawn, execSync } from "node:child_process";
 // import { absolutePath as binAbsolutePath } from "rescript/cli/bin_path.js"
-import * as path from "node:path";
+import * as path from "node:path"
+
+console.log(path.resolve("node_modules"));
 
 const rewatchAlreadyRunningRegex = /Rewatch is already running with PID (\d+)/;
 
@@ -8,16 +10,15 @@ function rescriptPlugin({ useRewatch = false } = {}) {
   let rescriptProcressRef = null;
   let logger = { info: console.log, warn: console.warn, error: console.error };
   let command = "build";
-  let rewatchBin = null;
 
   function build() {
-    return useRewatch ? execSync(`${rewatchBin} build`) : execSync("rescript");
+    return useRewatch ? execSync("rewatch build") : execSync("rescript");
   }
 
   function watch(logger, isRetry = false) {
     return new Promise((resolve, reject) => {
       const processRef = useRewatch
-        ? spawn(rewatchBin, ["watch"])
+        ? spawn("rewatch", ["watch"])
         : spawn("rescript", ["-w"]);
 
       // Process standard output
@@ -85,38 +86,22 @@ function rescriptPlugin({ useRewatch = false } = {}) {
     configResolved: async function (resolvedConfig) {
       logger = resolvedConfig.logger;
       command = resolvedConfig.command;
-
-      // bun rewatch calls rewatch.exe immediatly as a child process,
-      // it is easier to just start that directly.
-      if (useRewatch) {
-        try {
-          const binPath = await import(
-            path.join(path.resolve("node_modules"), "rescript/cli/bin_path.js")
-          );
-          rewatchBin = path.join(binPath.absolutePath, "rewatch.exe");
-          logger.info(`rewatchBin found at ${rewatchBin}`);
-        } catch (err) {
-          logger.error(`Option rewatch can only be used using the v12 alpha.`);
-          throw err;
-        }
-      }
     },
     buildStart: async function () {
       if (command === "build") {
         logger.info(build().toString().trim());
       } else {
         rescriptProcressRef = await watch(logger);
+        logger.info(`REQRCH ID: ${rescriptProcressRef.pid}`);
       }
     },
-    buildEnd: function () {
+    buildEnd: async function () {
       if (rescriptProcressRef && !rescriptProcressRef.killed) {
         const pid = rescriptProcressRef.pid;
-        // Default signal is SIGTERM
-        if (process.kill(pid, "SIGKILL")) {
-          logger.info(
-            `${useRewatch ? "rewatch" : "rescript"} process with PID: ${pid} has been killed`,
-          );
-        }
+        process.kill(pid, "SIGKILL"); // Default signal is SIGTERM
+        logger.info(
+          `${useRewatch ? "rewatch" : "rescript"} process with PID: ${pid} has been killed`,
+        );
       }
     },
   };

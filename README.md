@@ -36,6 +36,7 @@ To use `rewatch` instead:
 ```js
 rescript({ useRewatch: true })
 ```
+note: The plugin specifically looks for `rewatch` in the `rescript` package, so you need version 12 for this to work.
 
 ## Why
 

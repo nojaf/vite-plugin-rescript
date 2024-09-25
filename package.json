@@ -14,5 +14,5 @@
     "rescript": "^11.0.0"
   },
   "dependencies": {},
-  "trustedDependencies": ["rescript"]
+  "trustedDependencies": ["@biomejs/biome", "rescript"]
 }

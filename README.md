@@ -8,7 +8,7 @@ It will ignore any ReScript files being watched by Vite.
 This plugin is not published on npm; please fetch it from Git instead.
 
 ```sh
-bun install git+https://github.com/nojaf/vite-plugin-rescript.git
+bun install -D git+https://github.com/nojaf/vite-plugin-rescript.git#825e59d061205b73c732e478001131f5e6b23acf
 ```
 
 ## Configuration

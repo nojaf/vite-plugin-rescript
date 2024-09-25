@@ -1,0 +1,18 @@
+{
+  "name": "vite-plugin-rescript",
+  "module": "index.js",
+  "type": "module",
+  "scripts": {
+    "format": "bunx biome format --write *.js *.json"
+  },
+  "keywords": ["vite-plugin", "rollup-plugin"],
+  "devDependencies": {
+    "@biomejs/biome": "1.9.2",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "rescript": "^11.0.0"
+  },
+  "dependencies": {},
+  "trustedDependencies": ["rescript"]
+}

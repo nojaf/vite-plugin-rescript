@@ -1,6 +1,6 @@
 import { spawn, execSync } from "node:child_process";
-// import { absolutePath as binAbsolutePath } from "rescript/cli/bin_path.js"
 import * as path from "node:path";
+import { transform } from "./transform.js";
 
 const rewatchAlreadyRunningRegex = /Rewatch is already running with PID (\d+)/;
 
@@ -108,6 +108,7 @@ function rescriptPlugin({ useRewatch = false } = {}) {
         rescriptProcressRef = await watch(logger);
       }
     },
+    transform: transform,
     buildEnd: function () {
       if (rescriptProcressRef && !rescriptProcressRef.killed) {
         const pid = rescriptProcressRef.pid;

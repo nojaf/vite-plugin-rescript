@@ -3,7 +3,8 @@
   "module": "index.js",
   "type": "module",
   "scripts": {
-    "format": "bunx biome format --write *.js *.json"
+    "format": "bunx biome format --write *.js *.json",
+    "test": "bun test ./tests/index.js"
   },
   "keywords": ["vite-plugin", "rollup-plugin"],
   "devDependencies": {

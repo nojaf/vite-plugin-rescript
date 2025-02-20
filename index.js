@@ -1,14 +1,25 @@
 import { spawn, execSync } from "node:child_process";
 import * as path from "node:path";
 import { transform } from "./transform.js";
+import * as fs from "node:fs/promises";
 
 const rewatchAlreadyRunningRegex = /Rewatch is already running with PID (\d+)/;
+
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath, fs.constants.R_OK);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 
 function rescriptPlugin({ useRewatch = false } = {}) {
   let rescriptProcressRef = null;
   let logger = { info: console.log, warn: console.warn, error: console.error };
   let command = "build";
   let rewatchBin = null;
+  let outputExtension = ".res.mjs";
 
   function build() {
     return useRewatch ? execSync(`${rewatchBin} build`) : execSync("rescript");
@@ -85,6 +96,14 @@ function rescriptPlugin({ useRewatch = false } = {}) {
     configResolved: async function (resolvedConfig) {
       logger = resolvedConfig.logger;
       command = resolvedConfig.command;
+      const rescriptConfig = path.join(path.dirname(resolvedConfig.configFile), "rescript.json");
+      if (await fileExists(rescriptConfig)) {
+        const rescriptJson = await fs.readFile(rescriptConfig, "utf-8").then(content => JSON.parse(content));
+        if (rescriptJson.suffix) {
+          logger.info(`Found rescript suffix ${rescriptJson.suffix}`);
+          outputExtension = rescriptJson.suffix;
+        }
+      }
 
       // bun rewatch calls rewatch.exe immediatly as a child process,
       // it is easier to just start that directly.
@@ -108,7 +127,13 @@ function rescriptPlugin({ useRewatch = false } = {}) {
         rescriptProcressRef = await watch(logger);
       }
     },
-    transform: transform,
+    transform: async function (code, id) {
+      if (!id.endsWith(outputExtension)) {
+        return;
+      }
+
+      return transform(code, id);
+    },
     buildEnd: function () {
       if (rescriptProcressRef && !rescriptProcressRef.killed) {
         const pid = rescriptProcressRef.pid;

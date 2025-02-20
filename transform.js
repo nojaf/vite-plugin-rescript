@@ -53,10 +53,6 @@ function isReactComponent(program, name) {
 }
 
 export async function transform(code, id) {
-    if (!/\.res\.mjs$/.test(id)) {
-        return;
-    }
-
     console.log(id);
     const { program, magicString } = await parseAsync(id, code);
     const exportNamedDeclaration = program.body.find(

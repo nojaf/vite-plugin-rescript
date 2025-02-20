@@ -6,6 +6,7 @@ function sum(a, b) {
 }
 
 function Initial(props) {
+  'react/jsx-runtime';
   return "String";
 }
 

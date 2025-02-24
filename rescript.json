@@ -1,6 +1,7 @@
 {
   "name": "vite-plugin",
   "sources": [
+    "src",
     {
       "dir": "tests",
       "subdirs": true

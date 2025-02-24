@@ -4,20 +4,26 @@
   "type": "module",
   "scripts": {
     "format": "bunx biome format --write *.js *.json",
-    "test": "bun test ./tests/index.js"
+    "test": "bun test ./tests/index.js",
+    "bundle": "bun build --target=node src/Plugin.res.mjs --outdir . --entry-naming \"index.[ext]\""
   },
-  "keywords": ["vite-plugin", "rollup-plugin"],
+  "keywords": [
+    "vite-plugin",
+    "rollup-plugin",
+    "rescript"
+  ],
   "devDependencies": {
-    "@biomejs/biome": "1.9.2",
     "@rescript/react": "^0.13.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "rescript": "12.0.0-alpha.8",
+    "rescript": "12.0.0-alpha.9",
     "vite": "6.1.0"
   },
   "dependencies": {
     "oxc-parser": "^0.51.0"
   },
-  "trustedDependencies": ["@biomejs/biome", "rescript"]
+  "trustedDependencies": [
+    "rescript"
+  ]
 }

@@ -51,7 +51,7 @@ async function transform(code, resPath) {
       return;
     }
     let exportSpecifiers = specifiers.flatMap(specifier => {
-      if (typeof specifier !== "object" || Array.isArray(specifier)) {
+      if (typeof specifier !== "object" || specifier === null || Array.isArray(specifier)) {
         return [];
       }
       let match = specifier.type;

@@ -43,7 +43,6 @@ function Initial(props) {
 let make = Initial;
 
 export {
-  sum,
   make,
 }
 /* No side effect */

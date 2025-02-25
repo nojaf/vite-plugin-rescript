@@ -7,7 +7,7 @@ module MagicString = {
   external toString: t => string = "toString"
 
   @send
-  external remove: (t, int, int) => unit = "remove"
+  external remove: (t, float, float) => unit = "remove"
 }
 
 type rec parseResult = {

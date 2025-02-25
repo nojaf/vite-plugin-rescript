@@ -5,6 +5,10 @@ import * as OxcParser from "oxc-parser";
 import * as Promises from "node:fs/promises";
 import * as RescriptTools_Docgen from "rescript/lib/es6/RescriptTools_Docgen.js";
 
+function stripFileModuleName(id) {
+  return id.split(".").slice(1).join(".");
+}
+
 function collectReactComponents(item) {
   if (item.kind !== "value") {
     return [];
@@ -22,7 +26,7 @@ function collectReactComponents(item) {
       return [];
     case "signature" :
       if (detail.details.returnType.path === "React.element") {
-        return [item.id];
+        return [stripFileModuleName(item.id)];
       } else {
         return [];
       }
@@ -37,7 +41,9 @@ async function transform(code, resPath) {
   if (reactComponents.size === 0) {
     return code;
   }
+  console.log(reactComponents);
   let match = await OxcParser.parseAsync(resPath + ".mjs", code);
+  let magicString = match.magicString;
   match.program.body.forEach(statement => {
     let match = statement.type;
     if (typeof match !== "string") {
@@ -50,33 +56,50 @@ async function transform(code, resPath) {
     if (!Array.isArray(specifiers)) {
       return;
     }
-    let exportSpecifiers = specifiers.flatMap(specifier => {
+    specifiers.forEach(specifier => {
       if (typeof specifier !== "object" || specifier === null || Array.isArray(specifier)) {
-        return [];
+        return;
       }
       let match = specifier.type;
-      if (typeof match === "string") {
-        if (match === "ExportSpecifier") {
-          return [specifier];
-        } else {
-          return [];
-        }
-      } else {
-        return [];
+      if (typeof match !== "string") {
+        return;
       }
+      if (match !== "ExportSpecifier") {
+        return;
+      }
+      let match$1 = specifier.local;
+      if (typeof match$1 !== "object" || match$1 === null || Array.isArray(match$1)) {
+        return;
+      }
+      let localSpecifierName = match$1.name;
+      if (typeof localSpecifierName !== "string") {
+        return;
+      }
+      let start = specifier.start;
+      if (typeof start !== "number") {
+        return;
+      }
+      let end = specifier.end;
+      if (typeof end === "number" && !reactComponents.has(localSpecifierName)) {
+        magicString.remove(start - 2, end + 2);
+        return;
+      }
+      
     });
-    console.log(exportSpecifiers);
   });
-  return match.magicString.toString();
+  return magicString.toString();
 }
 
-let code = await Promises.readFile("/Users/nojaf/Projects/vite-plugin-rescript/tests/Initial.res.mjs", "utf-8");
+let match = import.meta.main;
 
-await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/Initial.res");
+if (match !== undefined && match) {
+  let code = await Promises.readFile("/Users/nojaf/Projects/vite-plugin-rescript/tests/Initial.res.mjs", "utf-8");
+  await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/Initial.res");
+}
 
 export {
+  stripFileModuleName,
   collectReactComponents,
   transform,
-  code,
 }
-/* code Not a pure module */
+/* match Not a pure module */

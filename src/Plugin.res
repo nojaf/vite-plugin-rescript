@@ -151,6 +151,14 @@ let rescript = (~options: pluginOptions={}): vitePlugin => {
       | Serve => rescriptProcressRef := Some(await watch(logger.contents))
       }
     },
+    transform: async (code, id) => {
+      if !String.endsWith(id, outputExtension.contents) {
+        None
+      } else {
+        let resPath = id->String.replace(outputExtension.contents, ".res")
+        Some(await Transform.transform(code, resPath))
+      }
+    },
     buildEnd: async () => {
       rescriptProcressRef.contents->Option.forEach(rescriptProcressRef => {
         if !rescriptProcressRef.killed {

@@ -21,6 +21,7 @@
     "vite": "6.1.0"
   },
   "dependencies": {
+    "npm-run-path": "^6.0.0",
     "oxc-parser": "^0.51.0"
   },
   "trustedDependencies": [

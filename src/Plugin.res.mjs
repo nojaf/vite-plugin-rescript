@@ -5,6 +5,7 @@ import * as Int from "rescript/lib/es6/Int.js";
 import * as Node from "./Node.res.mjs";
 import * as Option from "rescript/lib/es6/Option.js";
 import * as $$Promise from "rescript/lib/es6/Promise.js";
+import * as Transform from "./Transform.res.mjs";
 import * as Nodepath from "node:path";
 import * as Nodeprocess from "node:process";
 import * as Promises from "node:fs/promises";
@@ -154,6 +155,13 @@ function rescript(optionsOpt) {
       } else {
         return logger.contents.info(build().toString().trim(), undefined);
       }
+    },
+    transform: async (code, id) => {
+      if (!id.endsWith(outputExtension.contents)) {
+        return;
+      }
+      let resPath = id.replace(outputExtension.contents, ".res");
+      return await Transform.transform(code, resPath);
     },
     buildEnd: async () => Option.forEach(rescriptProcressRef.contents, rescriptProcressRef => {
       if (rescriptProcressRef.killed) {

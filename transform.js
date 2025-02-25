@@ -52,6 +52,11 @@ function isReactComponent(program, name) {
     return false;
 }
 
+/**
+ * @param {string} code 
+ * @param {string} id 
+ * @returns Promise<string | undefined>
+ */
 export async function transform(code, id) {
     console.log(id);
     const { program, magicString } = await parseAsync(id, code);
@@ -67,7 +72,6 @@ export async function transform(code, id) {
             specifier,
             isReactComponent(program, specifier.local.name),
         ]);
-
 
     const allItemsAreReactComponents = exportedItems.every(
         ([, isReactComponent]) => isReactComponent,

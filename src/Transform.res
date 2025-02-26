@@ -5,6 +5,35 @@ let stripFileModuleName = (id: string) => {
   id->String.split(".")->Array.sliceToEnd(~start=1)->Array.join(".")
 }
 
+/**
+  Merge the given identifier into the tree.
+  The idea is to make a lookup tree where we can see which properties are exported from which module.
+ */
+let rec mergeIntoTree = (tree: dict<JSON.t>, identifier: string) => {
+  let parts = identifier->String.split(".")
+  switch parts->Array.at(0) {
+  | None => tree
+  | Some(node) if Array.length(parts) == 1 =>
+    tree->Dict.set(node, JSON.Boolean(true))
+    tree
+  | Some(node) => {
+      let rest = parts->Array.sliceToEnd(~start=1)->Array.join(".")
+      // Check if the node is already in the tree
+      switch tree->Dict.get(node) {
+      | None =>
+        // Merge the rest of the parts into the tree
+        let subTree = JSON.Object(mergeIntoTree(dict{}, rest))
+        tree->Dict.set(node, subTree)
+        tree
+      | Some(Object(subTree)) =>
+        tree->Dict.set(node, JSON.Object(mergeIntoTree(subTree, rest)))
+        tree
+      | Some(_) => tree
+      }
+    }
+  }
+}
+
 let rec collectReactComponents = (item: item) => {
   switch item {
   | Value({name: "make", detail, id}) =>
@@ -32,6 +61,8 @@ let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
     code
   } else {
     log((`React components found: `, reactComponents))
+    let tree = reactComponents->Set.toArray->Array.reduce(dict{}, mergeIntoTree)
+    log(JSON.stringifyAny(tree))
     // parse JavaScript code to AST and modify exports
     open OxcParser
 
@@ -74,11 +105,11 @@ external isMain: option<bool> = "main"
 switch isMain {
 | Some(true) => {
     let code = await Node.FsPromises.readFile(
-      "/Users/nojaf/Projects/vite-plugin-rescript/tests/Primitives.res.mjs",
+      "/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res.mjs",
     )
     let _ = await transform(
       code,
-      "/Users/nojaf/Projects/vite-plugin-rescript/tests/Primitives.res",
+      "/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res",
       ~debug=true,
     )
   }

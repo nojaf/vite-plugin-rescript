@@ -2,11 +2,36 @@
 
 import * as Node from "./Node.res.mjs";
 import * as OxcParser from "oxc-parser";
+import * as Stdlib_Array from "rescript/lib/es6/Stdlib_Array.js";
 import * as Promises from "node:fs/promises";
 import * as RescriptTools_Docgen from "rescript/lib/es6/RescriptTools_Docgen.js";
 
 function stripFileModuleName(id) {
   return id.split(".").slice(1).join(".");
+}
+
+function mergeIntoTree(tree, identifier) {
+  let parts = identifier.split(".");
+  let node = parts.at(0);
+  if (node === undefined) {
+    return tree;
+  }
+  if (parts.length === 1) {
+    tree[node] = true;
+    return tree;
+  }
+  let rest = parts.slice(1).join(".");
+  let match = tree[node];
+  if (match !== undefined) {
+    if (typeof match !== "object" || match === null || Array.isArray(match)) {
+      return tree;
+    }
+    tree[node] = mergeIntoTree(match, rest);
+    return tree;
+  }
+  let subTree = mergeIntoTree({}, rest);
+  tree[node] = subTree;
+  return tree;
 }
 
 function collectReactComponents(item) {
@@ -61,6 +86,8 @@ async function transform(code, resPath, debug) {
     "React components found: ",
     reactComponents
   ]);
+  let tree = Stdlib_Array.reduce(Array.from(reactComponents), {}, mergeIntoTree);
+  log(JSON.stringify(tree));
   let match = await OxcParser.parseAsync(resPath + ".mjs", code);
   let magicString = match.magicString;
   match.program.body.forEach(statement => {
@@ -122,12 +149,13 @@ async function transform(code, resPath, debug) {
 let match = import.meta.main;
 
 if (match !== undefined && match) {
-  let code = await Promises.readFile("/Users/nojaf/Projects/vite-plugin-rescript/tests/Primitives.res.mjs", "utf-8");
-  await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/Primitives.res", true);
+  let code = await Promises.readFile("/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res.mjs", "utf-8");
+  await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res", true);
 }
 
 export {
   stripFileModuleName,
+  mergeIntoTree,
   collectReactComponents,
   transform,
 }

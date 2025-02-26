@@ -5,16 +5,26 @@ import path from "node:path";
 import { transform } from "../src/Transform.res.mjs";
 
 const glob = new Glob("*.res.mjs");
-let testFiles = await Array.fromAsync(glob.scan(import.meta.dir));
-testFiles = testFiles.toSorted((a, b) => a.localeCompare(b));
+for await (const file of glob.scan(import.meta.dir)) {
+  if (file.startsWith("test_")) continue;
 
-beforeAll(async () => {
-    await $`bun rescript build`.quiet();
-});
+  const testFilePath = path.join(import.meta.dir, `test_${file}`);
+  Bun.write(
+    testFilePath,
+    `
+import { expect, test, beforeAll } from "bun:test";
+import { testSnapshot } from "./index.js";
+const file = "${file}";
+test("snapshot", async () => { await testSnapshot(file); });
+`,
+  );
+}
 
-test.each(testFiles)("snapshot", async (file) => {
-    const filePath = path.join(import.meta.dir, file);
-    const resPath = filePath.replace(".res.mjs", ".res");
-    const code = await Bun.file(filePath).text();
-    expect(await transform(code, resPath)).toMatchSnapshot();
-});
+await $`bun rescript build`.quiet();
+
+export async function testSnapshot(file) {
+  const filePath = path.join(import.meta.dir, file);
+  const resPath = filePath.replace(".res.mjs", ".res");
+  const code = await Bun.file(filePath).text();
+  expect(await transform(code, resPath)).toMatchSnapshot();
+}

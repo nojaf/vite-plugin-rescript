@@ -176,3 +176,4 @@ dist
 
 # ReScript
 lib/
+tests/test_*.mjs

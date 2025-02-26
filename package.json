@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "format": "bunx biome format --write *.js *.json",
-    "test": "bun test ./tests/index.js",
+    "pretest": "bun run ./tests/index.js",
+    "test": "bun test ./tests/test_*",
     "bundle": "bun build --target=node src/Plugin.res.mjs --outdir . --entry-naming \"index.[ext]\""
   },
   "keywords": [

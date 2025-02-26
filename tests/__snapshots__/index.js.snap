@@ -103,8 +103,7 @@ function sum$1(a, b) {
 
 let Integer = {
   make: Primitives$Integer,
-  sum: sum$1
-};
+;
 
 function Primitives$Float(props) {
   return 1.0;

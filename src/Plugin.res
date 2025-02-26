@@ -156,7 +156,7 @@ let rescript = (~options: pluginOptions={}): vitePlugin => {
         None
       } else {
         let resPath = id->String.replace(outputExtension.contents, ".res")
-        Some(await Transform.transform(code, resPath))
+        Some(await Transform.transform(code, resPath, ~debug=false))
       }
     },
     buildEnd: async () => {

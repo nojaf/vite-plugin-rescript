@@ -62,6 +62,145 @@ function collectReactComponents(item) {
   }
 }
 
+function tryFindModule(program, localName) {
+  return Stdlib_Array.findMap(program.body, decl => {
+    let match = decl.type;
+    if (typeof match !== "string") {
+      return;
+    }
+    if (match !== "VariableDeclaration") {
+      return;
+    }
+    let match$1 = decl.declarations;
+    if (!Array.isArray(match$1)) {
+      return;
+    }
+    if (match$1.length !== 1) {
+      return;
+    }
+    let variableDeclarator = match$1[0];
+    if (typeof variableDeclarator !== "object" || variableDeclarator === null || Array.isArray(variableDeclarator)) {
+      return;
+    }
+    let match$2 = variableDeclarator.type;
+    if (typeof match$2 !== "string") {
+      return;
+    }
+    if (match$2 !== "VariableDeclarator") {
+      return;
+    }
+    let match$3 = variableDeclarator.id;
+    if (typeof match$3 !== "object" || match$3 === null || Array.isArray(match$3)) {
+      return;
+    }
+    let match$4 = match$3.type;
+    if (typeof match$4 !== "string") {
+      return;
+    }
+    if (match$4 !== "Identifier") {
+      return;
+    }
+    let name = match$3.name;
+    if (typeof name !== "string") {
+      return;
+    }
+    let match$5 = variableDeclarator.init;
+    if (typeof match$5 !== "object" || match$5 === null || Array.isArray(match$5)) {
+      return;
+    }
+    let match$6 = match$5.type;
+    if (typeof match$6 !== "string") {
+      return;
+    }
+    if (match$6 !== "ObjectExpression") {
+      return;
+    }
+    let properties = match$5.properties;
+    if (Array.isArray(properties) && name === localName) {
+      return [
+        variableDeclarator,
+        properties
+      ];
+    }
+    
+  });
+}
+
+function processNestedModule(program, magicString, localName, tree, debug) {
+  let log;
+  let exit = 0;
+  if (debug !== undefined && debug) {
+    log = prim => {
+      console.log(prim);
+    };
+  } else {
+    exit = 1;
+  }
+  if (exit === 1) {
+    log = param => {};
+  }
+  let match = tryFindModule(program, localName);
+  if (match !== undefined) {
+    match[1].forEach(property => {
+      if (typeof property !== "object" || property === null || Array.isArray(property)) {
+        return;
+      }
+      let match = property.type;
+      if (typeof match !== "string") {
+        return;
+      }
+      if (match !== "Property") {
+        return;
+      }
+      let match$1 = property.key;
+      if (typeof match$1 !== "object" || match$1 === null || Array.isArray(match$1)) {
+        return;
+      }
+      let name = match$1.name;
+      if (typeof name !== "string") {
+        return;
+      }
+      let match$2 = property.value;
+      if (typeof match$2 !== "object" || match$2 === null || Array.isArray(match$2)) {
+        return;
+      }
+      let value = match$2.name;
+      if (typeof value !== "string") {
+        return;
+      }
+      let start = property.start;
+      if (typeof start !== "number") {
+        return;
+      }
+      let end = property.end;
+      if (typeof end !== "number") {
+        return;
+      }
+      let v = tree[name];
+      if (v !== undefined) {
+        switch (typeof v) {
+          case "boolean" :
+            if (v) {
+              return;
+            }
+            break;
+          case "object" :
+            return processNestedModule(program, magicString, value, v, debug);
+        }
+        return log([
+          "Unexpected value in tree for " + name,
+          v
+        ]);
+      }
+      log("Removing export specifier " + name + " in " + localName);
+      magicString.remove(start - 2, end + 2);
+    });
+    return;
+  } else {
+    return log("Could not find module for " + localName);
+  }
+}
+
 async function transform(code, resPath, debug) {
   let log;
   let exit = 0;
@@ -90,7 +229,8 @@ async function transform(code, resPath, debug) {
   log(JSON.stringify(tree));
   let match = await OxcParser.parseAsync(resPath + ".mjs", code);
   let magicString = match.magicString;
-  match.program.body.forEach(statement => {
+  let program = match.program;
+  program.body.forEach(statement => {
     let match = statement.type;
     if (typeof match !== "string") {
       return;
@@ -129,8 +269,8 @@ async function transform(code, resPath, debug) {
       if (typeof end !== "number") {
         return;
       }
-      let localSpecifierName$1 = localSpecifierName.replace("$$", "");
-      let v = tree[localSpecifierName$1];
+      let cleanLocalSpecifierName = localSpecifierName.replace("$$", "");
+      let v = tree[cleanLocalSpecifierName];
       if (v !== undefined) {
         switch (typeof v) {
           case "boolean" :
@@ -139,14 +279,14 @@ async function transform(code, resPath, debug) {
             }
             break;
           case "object" :
-            return;
+            return processNestedModule(program, magicString, localSpecifierName, v, debug);
         }
         return log([
-          "Unexpected value in tree for " + localSpecifierName$1,
+          "Unexpected value in tree for " + localSpecifierName,
           v
         ]);
       }
-      log("Removing export specifier " + localSpecifierName$1);
+      log("Removing export specifier " + localSpecifierName);
       magicString.remove(start - 2, end + 2);
     });
   });
@@ -157,13 +297,16 @@ let match = import.meta.main;
 
 if (match !== undefined && match) {
   let code = await Promises.readFile("/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res.mjs", "utf-8");
-  await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res", true);
+  let result = await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res", true);
+  console.log(result);
 }
 
 export {
   stripFileModuleName,
   mergeIntoTree,
   collectReactComponents,
+  tryFindModule,
+  processNestedModule,
   transform,
 }
 /* match Not a pure module */

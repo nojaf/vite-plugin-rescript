@@ -1,5 +1,6 @@
 open Node
 open RescriptTools_Docgen
+open OxcParser
 
 let stripFileModuleName = (id: string) => {
   id->String.split(".")->Array.sliceToEnd(~start=1)->Array.join(".")
@@ -48,6 +49,75 @@ let rec collectReactComponents = (item: item) => {
   }
 }
 
+let tryFindModule = (program: program, localName: string) => {
+  program.body->Array.findMap(decl => {
+    switch decl {
+    | dict{
+        "type": JSON.String("VariableDeclaration"),
+        "declarations": JSON.Array([
+          JSON.Object(dict{
+            "type": JSON.String("VariableDeclarator"),
+            "id": JSON.Object(dict{"type": JSON.String("Identifier"), "name": JSON.String(name)}),
+            "init": JSON.Object(dict{
+              "type": JSON.String("ObjectExpression"),
+              "properties": JSON.Array(properties),
+            }),
+          }) as variableDeclarator,
+        ]),
+      } if name == localName =>
+      Some(variableDeclarator, properties)
+    | _ => None
+    }
+  })
+}
+
+let rec processNestedModule = (
+  program: program,
+  magicString: MagicString.t,
+  localName: string,
+  tree: dict<JSON.t>,
+  ~debug: option<bool>=?,
+) => {
+  let log = switch debug {
+  | Some(true) => Console.log
+  | _ => _ => ()
+  }
+  switch tryFindModule(program, localName) {
+  | None => log(`Could not find module for ${localName}`)
+  | Some((_, properties)) =>
+    properties->Array.forEach(property => {
+      switch property {
+      | JSON.Object(dict{
+          "type": JSON.String("Property"),
+          "key": JSON.Object(dict{"name": JSON.String(name)}),
+          "value": JSON.Object(dict{"name": JSON.String(value)}),
+          "start": JSON.Number(start),
+          "end": JSON.Number(end),
+        }) =>
+        switch tree->Dict.get(name) {
+        | None => {
+            // Remove potential export specifiers that are not React components
+            log(`Removing export specifier ${name} in ${localName}`)
+            magicString->MagicString.remove(start - 2., end + 2.)
+          }
+        | Some(Boolean(true)) => // The top level make function
+          ()
+        | Some(Object(subTree)) =>
+          processNestedModule(
+            program,
+            magicString,
+            value,
+            subTree,
+            ~debug?,
+          )
+        | Some(v) => log((`Unexpected value in tree for ${name}`, v))
+        }
+      | _ => ()
+      }
+    })
+  }
+}
+
 let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
   let log = switch debug {
   | Some(true) => Console.log
@@ -64,8 +134,6 @@ let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
     let tree = reactComponents->Set.toArray->Array.reduce(dict{}, mergeIntoTree)
     log(JSON.stringifyAny(tree))
     // parse JavaScript code to AST and modify exports
-    open OxcParser
-
     let {program, magicString} = await parseAsync(`${resPath}.mjs`, code)
     program.body->Array.forEach(statement => {
       switch statement {
@@ -78,18 +146,24 @@ let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
               "start": JSON.Number(start),
               "end": JSON.Number(end),
             }) => {
-              let localSpecifierName = localSpecifierName->String.replace("$$", "")
-              switch tree->Dict.get(localSpecifierName) {
+              let cleanLocalSpecifierName = localSpecifierName->String.replace("$$", "")
+              switch tree->Dict.get(cleanLocalSpecifierName) {
               | None => {
                   // Remove potential export specifiers that are not React components
                   // Console.log(`Removing export specifier ${localSpecifierName}`)
                   log(`Removing export specifier ${localSpecifierName}`)
                   magicString->MagicString.remove(start - 2., end + 2.)
                 }
-              | Some(Boolean(true)) => 
-                // The top level make function
+              | Some(Boolean(true)) => // The top level make function
                 ()
-              | Some(Object(_)) => ()
+              | Some(Object(subTree)) =>
+                processNestedModule(
+                  program,
+                  magicString,
+                  localSpecifierName,
+                  subTree,
+                  ~debug?,
+                )
               | Some(v) => log((`Unexpected value in tree for ${localSpecifierName}`, v))
               }
             }
@@ -112,11 +186,12 @@ switch isMain {
     let code = await Node.FsPromises.readFile(
       "/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res.mjs",
     )
-    let _ = await transform(
+    let result = await transform(
       code,
       "/Users/nojaf/Projects/vite-plugin-rescript/tests/DeepNested.res",
       ~debug=true,
     )
+    Console.log(result)
   }
 | _ => ()
 }

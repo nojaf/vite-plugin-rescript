@@ -1,10 +1,3 @@
-module NpmRunPath = {
-  type env
-
-  @module("npm-run-path")
-  external npmRunPathEnv: unit => env = "npmRunPathEnv"
-}
-
 module ChildProcess = {
   type t = {
     pid: int,
@@ -34,33 +27,6 @@ module ChildProcess = {
 
   @send
   external onClose: (t, @as(json`"close"`) _, int => unit) => unit = "on"
-
-  @module("node:child_process")
-  external execWithCallbacks: (string, {..}, (Null.t<Exn.t>, string, string) => unit) => unit =
-    "exec"
-
-  let execAsync = cmd => {
-    Promise.make((resolve, reject) => {
-      execWithCallbacks(
-        cmd,
-        {
-          "encoding": "utf-8",
-          "env": NpmRunPath.npmRunPathEnv(),
-        },
-        (error, stdout, stderr) => {
-          switch error {
-          | Null.Value(error) => reject(error)
-          | Null.Null =>
-            if stderr->String.trim->String.length > 0 {
-              reject(Error.make(stderr->String.trim))
-            } else {
-              resolve(stdout->String.trim)
-            }
-          }
-        },
-      )
-    })
-  }
 }
 
 module Process = {

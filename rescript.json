@@ -1,11 +1,7 @@
 {
   "name": "vite-plugin",
   "sources": [
-    "src",
-    {
-      "dir": "tests",
-      "subdirs": true
-    }
+    "src"
   ],
   "package-specs": {
     "module": "esmodule",

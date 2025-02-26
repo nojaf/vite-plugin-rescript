@@ -1,0 +1,26 @@
+name: Main
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install node_modules
+        run: bun install --frozen-lockfile
+
+      - name: Bundle
+        run: bun run bundle

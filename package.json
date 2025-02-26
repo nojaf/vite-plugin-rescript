@@ -3,10 +3,7 @@
   "module": "index.js",
   "type": "module",
   "scripts": {
-    "format": "bunx biome format --write *.js *.json",
-    "pretest": "bun run ./tests/index.js",
-    "test": "bun test ./tests/test_*",
-    "test:update": "bun test -u ./tests/test_*",
+    "format": "bunx prettier format --write *.js *.json",
     "prebundle": "rescript build",
     "bundle": "bun build --target=node src/Plugin.res.mjs -e oxc-parser --outdir . --entry-naming \"index.[ext]\""
   },

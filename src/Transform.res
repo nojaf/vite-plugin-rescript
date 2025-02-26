@@ -79,13 +79,18 @@ let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
               "end": JSON.Number(end),
             }) => {
               let localSpecifierName = localSpecifierName->String.replace("$$", "")
-              let specifierAndMake = `${localSpecifierName}.make`
-              let names = Set.fromArray([localSpecifierName, specifierAndMake])
-              if Set.isDisjointFrom(reactComponents, names) {
-                // Remove potential export specifiers that are not React components
-                // Console.log(`Removing export specifier ${localSpecifierName}`)
-                log(`Removing export specifier ${localSpecifierName}`)
-                magicString->MagicString.remove(start - 2., end + 2.)
+              switch tree->Dict.get(localSpecifierName) {
+              | None => {
+                  // Remove potential export specifiers that are not React components
+                  // Console.log(`Removing export specifier ${localSpecifierName}`)
+                  log(`Removing export specifier ${localSpecifierName}`)
+                  magicString->MagicString.remove(start - 2., end + 2.)
+                }
+              | Some(Boolean(true)) => 
+                // The top level make function
+                ()
+              | Some(Object(_)) => ()
+              | Some(v) => log((`Unexpected value in tree for ${localSpecifierName}`, v))
               }
             }
           | _ => ()

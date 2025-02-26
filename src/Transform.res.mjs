@@ -130,17 +130,24 @@ async function transform(code, resPath, debug) {
         return;
       }
       let localSpecifierName$1 = localSpecifierName.replace("$$", "");
-      let specifierAndMake = localSpecifierName$1 + ".make";
-      let names = new Set([
-        localSpecifierName$1,
-        specifierAndMake
-      ]);
-      if (reactComponents.isDisjointFrom(names)) {
-        log("Removing export specifier " + localSpecifierName$1);
-        magicString.remove(start - 2, end + 2);
-        return;
+      let v = tree[localSpecifierName$1];
+      if (v !== undefined) {
+        switch (typeof v) {
+          case "boolean" :
+            if (v) {
+              return;
+            }
+            break;
+          case "object" :
+            return;
+        }
+        return log([
+          "Unexpected value in tree for " + localSpecifierName$1,
+          v
+        ]);
       }
-      
+      log("Removing export specifier " + localSpecifierName$1);
+      magicString.remove(start - 2, end + 2);
     });
   });
   return magicString.toString();

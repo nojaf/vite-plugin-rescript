@@ -1,6 +1,6 @@
 {
   "name": "@nojaf/vite-plugin-rescript",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "module": "index.js",
   "type": "module",
    "license": "MIT",
@@ -19,8 +19,8 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "rescript": "12.0.0-alpha.9",
-    "vite": "6.1.0"
+    "rescript": "^12.0.0-alpha.9",
+    "vite": "^6.1.0"
   },
   "dependencies": {
   },

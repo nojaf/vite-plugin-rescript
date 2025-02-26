@@ -157,6 +157,13 @@ function rescript(optionsOpt) {
       }
     },
     transform: async (code, id) => {
+      let match = options.transform;
+      if (match === undefined) {
+        return;
+      }
+      if (!match) {
+        return;
+      }
       if (!id.endsWith(outputExtension.contents)) {
         return;
       }

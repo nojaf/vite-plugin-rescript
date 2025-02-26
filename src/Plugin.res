@@ -3,7 +3,7 @@ open Vite
 
 external import: string => promise<{..}> = "import"
 
-type pluginOptions = {useRewatch?: bool}
+type pluginOptions = {useRewatch?: bool, transform?: bool}
 
 %%private(let rewatchAlreadyRunningRegex = /Rewatch is already running with PID (\d+)/)
 
@@ -152,11 +152,15 @@ let rescript = (~options: pluginOptions={}): vitePlugin => {
       }
     },
     transform: async (code, id) => {
-      if !String.endsWith(id, outputExtension.contents) {
-        None
-      } else {
-        let resPath = id->String.replace(outputExtension.contents, ".res")
-        Some(await Transform.transform(code, resPath, ~debug=false))
+      switch options.transform {
+      | Some(true) =>
+        if !String.endsWith(id, outputExtension.contents) {
+          None
+        } else {
+          let resPath = id->String.replace(outputExtension.contents, ".res")
+          Some(await Transform.transform(code, resPath, ~debug=false))
+        }
+      | _ => None
       }
     },
     buildEnd: async () => {

@@ -118,7 +118,6 @@ let $$String = {
 };
 
 export {
-  sum,
   Integer,
   Float,
   $$Array,

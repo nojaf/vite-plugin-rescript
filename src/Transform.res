@@ -5,7 +5,7 @@ let stripFileModuleName = (id: string) => {
   id->String.split(".")->Array.sliceToEnd(~start=1)->Array.join(".")
 }
 
-let collectReactComponents = (item: item) => {
+let rec collectReactComponents = (item: item) => {
   switch item {
   | Value({name: "make", detail, id}) =>
     switch detail {
@@ -14,11 +14,16 @@ let collectReactComponents = (item: item) => {
       ]
     | _ => []
     }
+  | Module({items}) => items->Array.flatMap(collectReactComponents)
   | _ => []
   }
 }
 
-let transform = async (code, resPath: string) => {
+let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
+  let log = switch debug {
+  | Some(true) => Console.log
+  | _ => _ => ()
+  }
   let docOutput = await ChildProcess.execAsync(`rescript-tools doc ${resPath}`)
   let json = JSON.parseExn(docOutput)
   let doc = decodeFromJson(json)
@@ -26,7 +31,7 @@ let transform = async (code, resPath: string) => {
   if Set.size(reactComponents) == 0 {
     code
   } else {
-    Console.log(reactComponents)
+    log((`React components found: `, reactComponents))
     // parse JavaScript code to AST and modify exports
     open OxcParser
 
@@ -41,11 +46,16 @@ let transform = async (code, resPath: string) => {
               "local": JSON.Object(dict{"name": JSON.String(localSpecifierName)}),
               "start": JSON.Number(start),
               "end": JSON.Number(end),
-            }) =>
-            if !(reactComponents->Set.has(localSpecifierName)) {
-              // Remove potential export specifiers that are not React components
-              // Console.log(`Removing export specifier ${localSpecifierName}`)
-              magicString->MagicString.remove(start - 2., end + 2.)
+            }) => {
+              let localSpecifierName = localSpecifierName->String.replace("$$", "")
+              let specifierAndMake = `${localSpecifierName}.make`
+              let names = Set.fromArray([localSpecifierName, specifierAndMake])
+              if Set.isDisjointFrom(reactComponents, names) {
+                // Remove potential export specifiers that are not React components
+                // Console.log(`Removing export specifier ${localSpecifierName}`)
+                log(`Removing export specifier ${localSpecifierName}`)
+                magicString->MagicString.remove(start - 2., end + 2.)
+              }
             }
           | _ => ()
           }
@@ -64,9 +74,13 @@ external isMain: option<bool> = "main"
 switch isMain {
 | Some(true) => {
     let code = await Node.FsPromises.readFile(
-      "/Users/nojaf/Projects/vite-plugin-rescript/tests/Initial.res.mjs",
+      "/Users/nojaf/Projects/vite-plugin-rescript/tests/Primitives.res.mjs",
     )
-    let _ = await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/Initial.res")
+    let _ = await transform(
+      code,
+      "/Users/nojaf/Projects/vite-plugin-rescript/tests/Primitives.res",
+      ~debug=true,
+    )
   }
 | _ => ()
 }

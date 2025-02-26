@@ -10,30 +10,46 @@ function stripFileModuleName(id) {
 }
 
 function collectReactComponents(item) {
-  if (item.kind !== "value") {
-    return [];
-  }
-  if (item.name !== "make") {
-    return [];
-  }
-  let detail = item.detail;
-  if (detail === undefined) {
-    return [];
-  }
-  switch (detail.kind) {
-    case "record" :
-    case "variant" :
-      return [];
-    case "signature" :
-      if (detail.details.returnType.path === "React.element") {
-        return [stripFileModuleName(item.id)];
-      } else {
+  switch (item.kind) {
+    case "value" :
+      if (item.name !== "make") {
         return [];
       }
+      let detail = item.detail;
+      if (detail === undefined) {
+        return [];
+      }
+      switch (detail.kind) {
+        case "record" :
+        case "variant" :
+          return [];
+        case "signature" :
+          if (detail.details.returnType.path === "React.element") {
+            return [stripFileModuleName(item.id)];
+          } else {
+            return [];
+          }
+      }
+    case "module" :
+      return item.items.flatMap(collectReactComponents);
+    default:
+      return [];
   }
 }
 
-async function transform(code, resPath) {
+async function transform(code, resPath, debug) {
+  let log;
+  let exit = 0;
+  if (debug !== undefined && debug) {
+    log = prim => {
+      console.log(prim);
+    };
+  } else {
+    exit = 1;
+  }
+  if (exit === 1) {
+    log = param => {};
+  }
   let docOutput = await Node.ChildProcess.execAsync("rescript-tools doc " + resPath);
   let json = JSON.parse(docOutput);
   let doc = RescriptTools_Docgen.decodeFromJson(json);
@@ -41,7 +57,10 @@ async function transform(code, resPath) {
   if (reactComponents.size === 0) {
     return code;
   }
-  console.log(reactComponents);
+  log([
+    "React components found: ",
+    reactComponents
+  ]);
   let match = await OxcParser.parseAsync(resPath + ".mjs", code);
   let magicString = match.magicString;
   match.program.body.forEach(statement => {
@@ -80,7 +99,17 @@ async function transform(code, resPath) {
         return;
       }
       let end = specifier.end;
-      if (typeof end === "number" && !reactComponents.has(localSpecifierName)) {
+      if (typeof end !== "number") {
+        return;
+      }
+      let localSpecifierName$1 = localSpecifierName.replace("$$", "");
+      let specifierAndMake = localSpecifierName$1 + ".make";
+      let names = new Set([
+        localSpecifierName$1,
+        specifierAndMake
+      ]);
+      if (reactComponents.isDisjointFrom(names)) {
+        log("Removing export specifier " + localSpecifierName$1);
         magicString.remove(start - 2, end + 2);
         return;
       }
@@ -93,8 +122,8 @@ async function transform(code, resPath) {
 let match = import.meta.main;
 
 if (match !== undefined && match) {
-  let code = await Promises.readFile("/Users/nojaf/Projects/vite-plugin-rescript/tests/Initial.res.mjs", "utf-8");
-  await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/Initial.res");
+  let code = await Promises.readFile("/Users/nojaf/Projects/vite-plugin-rescript/tests/Primitives.res.mjs", "utf-8");
+  await transform(code, "/Users/nojaf/Projects/vite-plugin-rescript/tests/Primitives.res", true);
 }
 
 export {

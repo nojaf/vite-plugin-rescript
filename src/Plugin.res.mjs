@@ -161,7 +161,7 @@ function rescript(optionsOpt) {
         return;
       }
       let resPath = id.replace(outputExtension.contents, ".res");
-      return await Transform.transform(code, resPath);
+      return await Transform.transform(code, resPath, undefined);
     },
     buildEnd: async () => Stdlib_Option.forEach(rescriptProcressRef.contents, rescriptProcressRef => {
       if (rescriptProcressRef.killed) {

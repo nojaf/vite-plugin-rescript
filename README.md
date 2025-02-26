@@ -41,3 +41,12 @@ note: The plugin specifically looks for `rewatch` in the `rescript` package, so 
 ## Why
 
 I prefer to start my dev server using a single command to avoid a split terminal setup.
+
+## Publish
+
+(for maintainers)
+
+```shell
+bun publish --dry-run
+bun publish  --access=public
+```

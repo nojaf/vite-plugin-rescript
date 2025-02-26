@@ -1,7 +1,9 @@
 {
-  "name": "vite-plugin-rescript",
+  "name": "@nojaf/vite-plugin-rescript",
+  "version": "0.1.0",
   "module": "index.js",
   "type": "module",
+   "license": "MIT",
   "scripts": {
     "format": "bunx prettier format --write *.js *.json",
     "prebundle": "rescript build",
@@ -25,6 +27,7 @@
   "trustedDependencies": [
     "rescript"
   ],
+  "main": "index.js",
   "files": [
     "index.js"
   ]

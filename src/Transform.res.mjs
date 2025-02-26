@@ -219,7 +219,7 @@ async function transform(code, resPath, debug) {
   let doc = RescriptTools_Docgen.decodeFromJson(json);
   let reactComponents = new Set(doc.items.flatMap(collectReactComponents));
   if (reactComponents.size === 0) {
-    return code;
+    return null;
   }
   log([
     "React components found: ",
@@ -290,7 +290,8 @@ async function transform(code, resPath, debug) {
       magicString.remove(start - 2, end + 2);
     });
   });
-  return magicString.toString();
+  let nextCode = magicString.toString();
+  return nextCode;
 }
 
 let match = import.meta.main;

@@ -105,7 +105,7 @@ let rescript = (~options: pluginOptions={}): vitePlugin => {
       {
         server: {
           watch: {
-            ignored: ["**/*.res"],
+            ignored: ["**/lib/**", "**/*.res"],
           },
         },
       }
@@ -155,12 +155,12 @@ let rescript = (~options: pluginOptions={}): vitePlugin => {
       switch options.transform {
       | Some(true) =>
         if !String.endsWith(id, outputExtension.contents) {
-          None
+          Null.null
         } else {
           let resPath = id->String.replace(outputExtension.contents, ".res")
-          Some(await Transform.transform(code, resPath, ~debug=false))
+          await Transform.transform(code, resPath, ~debug=false)
         }
-      | _ => None
+      | _ => Null.null
       }
     },
     buildEnd: async () => {
@@ -176,3 +176,5 @@ let rescript = (~options: pluginOptions={}): vitePlugin => {
     },
   }
 }
+
+let default = rescript

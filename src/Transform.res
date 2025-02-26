@@ -103,13 +103,7 @@ let rec processNestedModule = (
         | Some(Boolean(true)) => // The top level make function
           ()
         | Some(Object(subTree)) =>
-          processNestedModule(
-            program,
-            magicString,
-            value,
-            subTree,
-            ~debug?,
-          )
+          processNestedModule(program, magicString, value, subTree, ~debug?)
         | Some(v) => log((`Unexpected value in tree for ${name}`, v))
         }
       | _ => ()
@@ -118,7 +112,7 @@ let rec processNestedModule = (
   }
 }
 
-let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
+let transform = async (code, resPath: string, ~debug: option<bool>=?): Null.t<string> => {
   let log = switch debug {
   | Some(true) => Console.log
   | _ => _ => ()
@@ -128,7 +122,7 @@ let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
   let doc = decodeFromJson(json)
   let reactComponents = doc.items->Array.flatMap(collectReactComponents)->Set.fromArray
   if Set.size(reactComponents) == 0 {
-    code
+    Null.null
   } else {
     log((`React components found: `, reactComponents))
     let tree = reactComponents->Set.toArray->Array.reduce(dict{}, mergeIntoTree)
@@ -157,13 +151,7 @@ let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
               | Some(Boolean(true)) => // The top level make function
                 ()
               | Some(Object(subTree)) =>
-                processNestedModule(
-                  program,
-                  magicString,
-                  localSpecifierName,
-                  subTree,
-                  ~debug?,
-                )
+                processNestedModule(program, magicString, localSpecifierName, subTree, ~debug?)
               | Some(v) => log((`Unexpected value in tree for ${localSpecifierName}`, v))
               }
             }
@@ -174,7 +162,7 @@ let transform = async (code, resPath: string, ~debug: option<bool>=?) => {
       }
     })
     let nextCode = magicString->MagicString.toString
-    nextCode
+    Null.Value(nextCode)
   }
 }
 

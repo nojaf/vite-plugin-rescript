@@ -26,6 +26,6 @@ type vitePlugin = {
   config?: unit => config,
   configResolved?: resolvedConfig => promise<unit>,
   buildStart?: unit => promise<unit>,
-  transform?: (string, string) => promise<option<string>>,
+  transform?: (string, string) => promise<Null.t<string>>,
   buildEnd?: unit => promise<unit>,
 }

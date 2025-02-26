@@ -6,7 +6,8 @@
     "format": "bunx biome format --write *.js *.json",
     "pretest": "bun run ./tests/index.js",
     "test": "bun test ./tests/test_*",
-    "bundle": "bun build --target=node src/Plugin.res.mjs --outdir . --entry-naming \"index.[ext]\""
+    "prebundle": "rescript build",
+    "bundle": "bun build --target=node src/Plugin.res.mjs -e oxc-parser --outdir . --entry-naming \"index.[ext]\""
   },
   "keywords": [
     "vite-plugin",
@@ -27,5 +28,8 @@
   },
   "trustedDependencies": [
     "rescript"
+  ],
+  "files": [
+    "index.js"
   ]
 }

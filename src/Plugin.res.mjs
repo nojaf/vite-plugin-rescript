@@ -102,7 +102,10 @@ function rescript(optionsOpt) {
     config: () => ({
       server: {
         watch: {
-          ignored: ["**/*.res"]
+          ignored: [
+            "**/lib/**",
+            "**/*.res"
+          ]
         }
       }
     }),
@@ -159,13 +162,13 @@ function rescript(optionsOpt) {
     transform: async (code, id) => {
       let match = options.transform;
       if (match === undefined) {
-        return;
+        return null;
       }
       if (!match) {
-        return;
+        return null;
       }
       if (!id.endsWith(outputExtension.contents)) {
-        return;
+        return null;
       }
       let resPath = id.replace(outputExtension.contents, ".res");
       return await Transform.transform(code, resPath, false);
@@ -184,7 +187,10 @@ function rescript(optionsOpt) {
   };
 }
 
+let $$default = rescript;
+
 export {
   rescript,
+  $$default as default,
 }
 /* Node Not a pure module */

@@ -10,6 +10,7 @@ type pluginOptions = {useRewatch?: bool}
 let rescript = (~options: pluginOptions={}): vitePlugin => {
   let useRewatch = options.useRewatch->Option.getOr(false)
   let rescriptProcressRef: ref<option<ChildProcess.t>> = ref(None)
+  @warning("-27")
   let logger: ref<logger> = ref({
     info: (msg, ~options={}) => {
       Console.log(msg)
@@ -21,6 +22,7 @@ let rescript = (~options: pluginOptions={}): vitePlugin => {
       Console.log(msg)
     },
   })
+  @warning("+27")
   let command = ref(Build)
   let rewatchBin = ref(None)
   let outputExtension = ref(".res.mjs")

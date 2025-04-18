@@ -6,6 +6,8 @@ external import: string => promise<{..}> = "import"
 type pluginOptions = {useRewatch?: bool}
 
 %%private(let rewatchAlreadyRunningRegex = /Rewatch is already running with PID (\d+)/)
+%%private(let foundABug = "We've found a bug for you!")
+%%private(let warning = "Warning number")
 
 let rescript = (~options: pluginOptions={}): vitePlugin => {
   let useRewatch = options.useRewatch->Option.getOr(false)
@@ -45,9 +47,83 @@ let rescript = (~options: pluginOptions={}): vitePlugin => {
       | _ => ChildProcess.spawn("rescript", ["-w"])
       }
 
+      let buffer = ref("")
+
       // Process standard output
       processRef->ChildProcess.onStdoutData(data => {
-        logger.info(data->ChildProcess.Chunk.toString->String.trim)
+        buffer := buffer.contents ++ data->ChildProcess.Chunk.toString
+        let lines =
+          buffer.contents
+          ->String.split("\n")
+          ->Array.filter(line => !(line->String.includes("rescript: [")))
+        buffer := lines->Array.pop->Option.getOr("")
+        let hasBugOrWarning =
+          lines->Array.some(v => v->String.includes("FAILED:") || v->String.includes(warning))
+        if hasBugOrWarning {
+          Array.forEach(
+            lines,
+            line => {
+              let errorLineNumber =
+                lines
+                ->Array.filterMap(
+                  line => {
+                    let parts = line->String.split("│")
+                    switch parts {
+                    | [number, _] => number->Int.fromString
+                    | _ => None
+                    }
+                  },
+                )
+                ->Array.at(2)
+                ->Option.getOr(-1)
+              let lineText = switch line {
+              | line if line->String.includes(foundABug) => line->Picocolors.bold->Picocolors.red
+              | line if line->String.includes(`${errorLineNumber->Int.toString} │`) =>
+                line->String.replaceRegExp(/^\s+\d+/, Obj.magic(Picocolors.red))
+              | line if RegExp.test(/\.res(i?):/, line) => {
+                  let colonIndex = line->String.indexOf(":")
+                  if colonIndex == -1 {
+                    line
+                  } else {
+                    let path = line->String.slice(~start=0, ~end=colonIndex)
+                    let range = line->String.sliceToEnd(~start=colonIndex + 1)
+                    Picocolors.cyanBright(path) ++ ":" ++ Picocolors.whiteBright(range)
+                  }
+                }
+              | line if line->String.includes("FAILED:") =>
+                line->String.replaceRegExp(/FAILED:/, Obj.magic(Picocolors.redBright))
+              | line if line->String.includes(warning) =>
+                line->Picocolors.yellowBright->Picocolors.bold
+              | _ => line
+              }
+
+              logger.error(lineText)
+            },
+          )
+        } else {
+          switch lines {
+          | [line] if line->String.includes(">>>> Start compiling") =>
+            logger.info(Picocolors.cyanBright(line))
+          | [line] if line->String.includes(">>>> Finish compiling") =>
+            logger.info(
+              line->String.replaceRegExp(
+                /^(>>>> Finish compiling )(\d+)(.*)$/,
+                Obj.magic(
+                  (_, lead, number, rest) => {
+                    Picocolors.cyanBright(lead) ++ Picocolors.yellowBright(number) ++ rest
+                  },
+                ),
+              ),
+            )
+          | lines =>
+            Array.forEach(
+              lines,
+              line => {
+                logger.info(line->String.trim)
+              },
+            )
+          }
+        }
       })
 
       // Process standard error

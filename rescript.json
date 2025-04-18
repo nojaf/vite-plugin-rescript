@@ -1,8 +1,6 @@
 {
   "name": "vite-plugin",
-  "sources": [
-    "src"
-  ],
+  "sources": ["src"],
   "package-specs": {
     "module": "esmodule",
     "in-source": true

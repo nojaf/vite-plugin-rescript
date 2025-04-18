@@ -4,6 +4,8 @@ import * as Node from "./Node.res.mjs";
 import * as Nodepath from "node:path";
 import * as Stdlib_Exn from "rescript/lib/es6/Stdlib_Exn.js";
 import * as Stdlib_Int from "rescript/lib/es6/Stdlib_Int.js";
+import * as Picocolors from "picocolors";
+import * as Stdlib_Array from "rescript/lib/es6/Stdlib_Array.js";
 import * as Nodeprocess from "node:process";
 import * as Stdlib_Option from "rescript/lib/es6/Stdlib_Option.js";
 import * as Stdlib_Promise from "rescript/lib/es6/Stdlib_Promise.js";
@@ -11,6 +13,8 @@ import * as Promises from "node:fs/promises";
 import * as Nodechild_process from "node:child_process";
 
 let rewatchAlreadyRunningRegex = /Rewatch is already running with PID (\d+)/;
+
+let warning = "Warning number";
 
 function rescript(optionsOpt) {
   let options = optionsOpt !== undefined ? optionsOpt : ({});
@@ -59,7 +63,65 @@ function rescript(optionsOpt) {
       let processRef = rewatchBin$1 !== undefined ? (
           useRewatch ? Nodechild_process.spawn(rewatchBin$1, ["watch"]) : Nodechild_process.spawn("rescript", ["-w"])
         ) : Nodechild_process.spawn("rescript", ["-w"]);
-      processRef.stdout.on("data", data => logger.info(data.toString().trim(), undefined));
+      let buffer = {
+        contents: ""
+      };
+      processRef.stdout.on("data", data => {
+        buffer.contents = buffer.contents + data.toString();
+        let lines = buffer.contents.split("\n").filter(line => !line.includes("rescript: ["));
+        buffer.contents = Stdlib_Option.getOr(lines.pop(), "");
+        let hasBugOrWarning = lines.some(v => {
+          if (v.includes("FAILED:")) {
+            return true;
+          } else {
+            return v.includes(warning);
+          }
+        });
+        if (hasBugOrWarning) {
+          lines.forEach(line => {
+            let errorLineNumber = Stdlib_Option.getOr(Stdlib_Array.filterMap(lines, line => {
+              let parts = line.split("│");
+              if (parts.length !== 2) {
+                return;
+              }
+              let number = parts[0];
+              return Stdlib_Int.fromString(number, undefined);
+            }).at(2), -1);
+            let lineText;
+            if (line.includes("We've found a bug for you!")) {
+              lineText = Picocolors.red(Picocolors.bold(line));
+            } else if (line.includes(errorLineNumber.toString() + " │")) {
+              lineText = line.replace(/^\s+\d+/, prim => Picocolors.red(prim));
+            } else if (/\.res(i?):/.test(line)) {
+              let colonIndex = line.indexOf(":");
+              if (colonIndex === -1) {
+                lineText = line;
+              } else {
+                let path = line.slice(0, colonIndex);
+                let range = line.slice(colonIndex + 1 | 0);
+                lineText = Picocolors.cyanBright(path) + ":" + Picocolors.whiteBright(range);
+              }
+            } else {
+              lineText = line.includes("FAILED:") ? line.replace(/FAILED:/, prim => Picocolors.redBright(prim)) : (
+                  line.includes(warning) ? Picocolors.bold(Picocolors.yellowBright(line)) : line
+                );
+            }
+            logger.error(lineText, undefined);
+          });
+          return;
+        }
+        if (lines.length === 1) {
+          let line = lines[0];
+          if (line.includes(">>>> Start compiling")) {
+            return logger.info(Picocolors.cyanBright(line), undefined);
+          }
+          if (line.includes(">>>> Finish compiling")) {
+            return logger.info(line.replace(/^(>>>> Finish compiling )(\d+)(.*)$/, (param, lead, number, rest) => Picocolors.cyanBright(lead) + Picocolors.yellowBright(number) + rest), undefined);
+          }
+          
+        }
+        lines.forEach(line => logger.info(line.trim(), undefined));
+      });
       processRef.stderr.on("data", data => {
         let error = data.toString().trim();
         if (!(useRewatch && !isRetry)) {

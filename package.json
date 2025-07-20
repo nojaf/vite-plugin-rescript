@@ -7,7 +7,8 @@
   "scripts": {
     "fmt": "rescript format --all && prettier -l --write *.js *.json",
     "prebundle": "rescript build",
-    "bundle": "bun build --target=node packages/vite-plugin-rescript/src/Plugin.res.mjs --minify --outdir ./packages/vite-plugin-rescript --entry-naming \"index.[ext]\""
+    "bundle": "bun build --target=node packages/vite-plugin-rescript/src/Plugin.res.mjs --minify --outdir ./packages/vite-plugin-rescript --entry-naming \"index.[ext]\"",
+    "analyze": "rescript-tools reanalyze -json"
   },
   "dependencies": {
     "rescript": "12.0.0-beta.2"

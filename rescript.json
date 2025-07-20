@@ -1,14 +1,12 @@
 {
-  "name": "vite-plugin",
-  "sources": ["src"],
+  "name": "vite-plugin-rescript",
   "package-specs": {
     "module": "esmodule",
     "in-source": true
   },
   "suffix": ".res.mjs",
-  "jsx": {
-    "version": 4
-  },
-  "bs-dependencies": ["@rescript/react"],
-  "bsc-flags": []
+  "bs-dependencies": ["@nojaf/vite-plugin-rescript"],
+  "js-post-build": {
+    "command": "bun build --target=node src/Plugin.res.mjs --outdir . --entry-naming \"index.[ext]\""
+  }
 }

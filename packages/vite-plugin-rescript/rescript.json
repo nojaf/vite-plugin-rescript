@@ -1,0 +1,9 @@
+{
+    "name": "@nojaf/vite-plugin-rescript",
+    "sources": [
+        "src"
+    ],
+    "warnings": {
+        "number":"-27"
+    }
+}

@@ -32,6 +32,12 @@ module ChildProcess = {
 module Process = {
   @module("node:process") @scope("process")
   external kill: (int, @as(json`"SIGKILL"`) _) => bool = "kill"
+
+  @scope("process") @val
+  external platform: string = "platform"
+
+  @scope("process") @val
+  external arch: string = "arch"
 }
 
 module Path = {
@@ -43,6 +49,25 @@ module Path = {
 
   @module("node:path")
   external resolve: string => string = "resolve"
+
+  type parseResult = {
+    mutable ext: string,
+    mutable base: string,
+    name: string,
+  }
+
+  @module("node:path")
+  external parse: string => parseResult = "parse"
+
+  @module("node:path")
+  external format: parseResult => string = "format"
+
+  let changeExtension = (path, ext) => {
+    let result = parse(path)
+    result.ext = ext
+    result.base = result.name ++ ext
+    format(result)
+  }
 }
 
 module FsPromises = {

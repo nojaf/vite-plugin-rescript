@@ -49,6 +49,7 @@ You might want to try that out instead.
 (for maintainers)
 
 ```shell
+# pwd packages/vite-plugin-rescript
 bun publish --dry-run
 bun publish  --access=public
 ```

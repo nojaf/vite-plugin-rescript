@@ -11,7 +11,7 @@
     "analyze": "rescript-tools reanalyze -json"
   },
   "dependencies": {
-    "rescript": "12.0.0-beta.2"
+    "rescript": "12.0.0-beta.4"
   },
   "devDependencies": {
     "prettier": "^3.6.2"

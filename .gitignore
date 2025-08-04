@@ -177,4 +177,6 @@ dist
 # ReScript
 lib/
 tests/test_*.mjs
-/index.js
+packages/vite-plugin-rescript/index.js
+
+.history/

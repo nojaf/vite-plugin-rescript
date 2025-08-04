@@ -1,0 +1,24 @@
+{
+    "name": "@nojaf/vite-plugin-rescript",
+    "version": "0.3.0",
+    "module": "index.js",
+    "main": "index.js",
+    "files": [
+        "index.js"
+    ],
+    "type": "module",
+    "license": "MIT",
+    "keywords": [
+        "vite-plugin",
+        "rollup-plugin",
+        "rescript"
+    ],
+    "peerDependencies": {
+        "rescript": "^12.0.0-beta.1",
+        "vite": "^7.0.0"
+    },
+    "dependencies": {
+        "dax-sh": "^0.43.2",
+        "semver": "^7.7.2"
+    }
+}

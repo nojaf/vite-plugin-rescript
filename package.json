@@ -1,33 +1,19 @@
 {
-  "name": "@nojaf/vite-plugin-rescript",
-  "version": "0.2.0",
-  "module": "index.js",
-  "type": "module",
-  "license": "MIT",
+  "name": "vite-plugin-rescript",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "fmt": "rescript format -all && bunx prettier --write *.js *.json",
+    "fmt": "rescript format --all && prettier -l --write *.js *.json",
     "prebundle": "rescript build",
-    "bundle": "bun build --target=node src/Plugin.res.mjs -e oxc-parser --outdir . --entry-naming \"index.[ext]\""
+    "bundle": "bun build --target=node packages/vite-plugin-rescript/src/Plugin.res.mjs --minify --outdir ./packages/vite-plugin-rescript --entry-naming \"index.[ext]\"",
+    "analyze": "rescript-tools reanalyze -json"
   },
-  "keywords": [
-    "vite-plugin",
-    "rollup-plugin",
-    "rescript"
-  ],
+  "dependencies": {
+    "rescript": "12.0.0-beta.2"
+  },
   "devDependencies": {
-    "@rescript/react": "^0.13.0",
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "rescript": "^12.0.0-alpha.9",
-    "vite": "^6.1.0"
-  },
-  "dependencies": {},
-  "trustedDependencies": [
-    "rescript"
-  ],
-  "main": "index.js",
-  "files": [
-    "index.js"
-  ]
+    "prettier": "^3.6.2"
+  }
 }

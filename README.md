@@ -1,9 +1,10 @@
 [![NPM Version](https://img.shields.io/npm/v/@nojaf/vite-plugin-rescript)](https://www.npmjs.com/package/@nojaf/vite-plugin-rescript)
 
-
 # vite-plugin-rescript
 
-This is a simple Vite plugin that starts `rescript` (or `rewatch`) at the beginning of the Vite pipeline.
+**ReScript v12 beta and higher**
+
+This is a simple Vite plugin that starts `rescript` at the beginning of the Vite pipeline.
 It will ignore any ReScript files being watched by Vite.
 
 ## Install
@@ -30,20 +31,18 @@ export default defineConfig({
     react({
       include: ["**/*.res.mjs"],
     }),
-  ]
+  ],
 });
 ```
-
-To use `rewatch` instead:
-
-```js
-rescript({ useRewatch: true })
-```
-note: The plugin specifically looks for `rewatch` in the `rescript` package, so you need version 12 for this to work.
 
 ## Why
 
 I prefer to start my dev server using a single command to avoid a split terminal setup.
+
+## Prior art
+
+This repository is equivalent to https://github.com/jihchi/vite-plugin-rescript, which is more mature.
+You might want to try that out instead.
 
 ## Publish
 

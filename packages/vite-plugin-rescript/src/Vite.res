@@ -20,12 +20,32 @@ type config = {mutable server?: configServer}
 
 type resolvedConfig = {command: command, logger: logger, configFile: string}
 
+type filterHook<'handler> = {
+  filter: {
+    id: {
+      @as("include")
+      include_: RegExp.t,
+    },
+  },
+  handler: 'handler,
+}
+
+@tag("event")
+type change =
+  | @as("create") Create
+  | @as("update") Update
+  | @as("delete") Delete
+
+type changeEvent = {event: change}
+
 type vitePlugin = {
   name: string,
   enforce?: string,
   config?: unit => config,
   configResolved?: resolvedConfig => promise<unit>,
   buildStart?: unit => promise<unit>,
-  transform?: (string, string) => promise<Null.t<string>>,
+  transform?: filterHook<(string, string) => promise<string>>,
   buildEnd?: unit => promise<unit>,
+  watchChange?: (string, changeEvent) => promise<unit>,
+  closeBundle?: unit => promise<unit>,
 }

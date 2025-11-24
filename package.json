@@ -14,7 +14,9 @@
     "rescript": "12.0.0-rc.5"
   },
   "devDependencies": {
+    "keep-a-changelog": "^2.7.1",
     "prettier": "^3.6.2",
-    "rescript": "catalog:"
+    "rescript": "catalog:",
+    "semver": "^7.7.3"
   }
 }

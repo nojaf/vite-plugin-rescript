@@ -22,5 +22,8 @@ jobs:
       - name: Install node_modules
         run: bun install --frozen-lockfile
 
+      - name: Check version
+        run: bun run ./scripts/check-version.ts
+
       - name: Bundle
         run: bun run bundle

@@ -23,7 +23,7 @@ external atUnsafe: (array<'t>, int) => 't = "at"
  */
 
 let rescript = async (_: pluginOptions): vitePlugin => {
-  let rescriptVersionText = await (sh`rescript --version`)->ShellPromise.text
+  let rescriptVersionText = await sh`rescript --version`->ShellPromise.text
   let rescriptVersion = rescriptVersionText->String.split(" ")->atUnsafe(-1)
   if !SemVer.satisfies(rescriptVersion, ">=12.0.0-beta.1") {
     throw(Failure("Rescript version must be >=12.0.0-beta.1"))
@@ -81,7 +81,7 @@ let rescript = async (_: pluginOptions): vitePlugin => {
         }
       | Serve =>
         pluginState.runningRewatch = Some(
-          (sh`${pluginState.rescriptBin} watch`)
+          sh`${pluginState.rescriptBin} watch`
           ->ShellPromise.noThrow
           ->ShellPromise.spawn,
         )

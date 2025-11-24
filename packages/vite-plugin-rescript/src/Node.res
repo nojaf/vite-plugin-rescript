@@ -77,7 +77,7 @@ module FsPromises = {
     external rOK: mode = "R_OK"
   }
 
-  external access: (string, mode) => Js.Promise.t<unit> = "access"
+  external access: (string, mode) => promise<unit> = "access"
 
   let fileExists = async path => {
     try {
@@ -89,5 +89,5 @@ module FsPromises = {
   }
 
   @module("node:fs/promises")
-  external readFile: (string, @as(json`"utf-8"`) _) => Js.Promise.t<string> = "readFile"
+  external readFile: (string, @as(json`"utf-8"`) _) => promise<string> = "readFile"
 }

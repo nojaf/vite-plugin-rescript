@@ -1,19 +1,18 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "vite-plugin-rescript",
-      "dependencies": {
-        "rescript": "12.0.0-beta.4",
-      },
       "devDependencies": {
         "prettier": "^3.6.2",
+        "rescript": "catalog:",
       },
     },
     "packages/sample": {
       "name": "sample",
       "dependencies": {
-        "rescript": "12.0.0-beta.2",
+        "rescript": "catalog:",
       },
       "devDependencies": {
         "vite": "^7.0.5",
@@ -26,11 +25,17 @@
         "dax-sh": "^0.43.2",
         "semver": "^7.7.2",
       },
+      "devDependencies": {
+        "rescript": "catalog:",
+      },
       "peerDependencies": {
-        "rescript": "^12.0.0-beta.4",
+        "rescript": ">=12.0.0-rc.0 <13",
         "vite": "^7.0.0",
       },
     },
+  },
+  "catalog": {
+    "rescript": "12.0.0-rc.5",
   },
   "packages": {
     "@deno/shim-deno": ["@deno/shim-deno@0.19.2", "", { "dependencies": { "@deno/shim-deno-test": "^0.5.0", "which": "^4.0.0" } }, "sha512-q3VTHl44ad8T2Tw2SpeAvghdGOjlnLPDNO2cpOxwMrBE/PVas6geWpbpIgrM+czOCH0yejp0yi8OaTuB+NU40Q=="],
@@ -91,15 +96,17 @@
 
     "@nojaf/vite-plugin-rescript": ["@nojaf/vite-plugin-rescript@workspace:packages/vite-plugin-rescript"],
 
-    "@rescript/darwin-arm64": ["@rescript/darwin-arm64@12.0.0-beta.4", "", { "os": "darwin", "cpu": "arm64" }, "sha512-UenADkeR86PyFJ89AY0utG5fi1/3DLEBHoof0DjgXpMhZoPg+fjXcxRGhtBpN1Bov59kBLxIDLX0T6ZkFtjbwQ=="],
+    "@rescript/darwin-arm64": ["@rescript/darwin-arm64@12.0.0-rc.5", "", { "os": "darwin", "cpu": "arm64" }, "sha512-on94/D8LNX8+SwKKvVd5Zj7amtgzk+BRGiEw+5XW7Kz+hW/S0jwGvfVg8RlDweRI9duEkab4quesfEN4VuW+JA=="],
 
-    "@rescript/darwin-x64": ["@rescript/darwin-x64@12.0.0-beta.4", "", { "os": "darwin", "cpu": "x64" }, "sha512-aKSabtfetlVvA0EA2G4TBTlDH96CZsnmCMbsGwwMDvLLr4cmnmJoMO/nvgI5AdFcNUW/NGVtGVsgPfcmLd7EWQ=="],
+    "@rescript/darwin-x64": ["@rescript/darwin-x64@12.0.0-rc.5", "", { "os": "darwin", "cpu": "x64" }, "sha512-tfSOWR9fhHcVlV04t7qsL1pka64p9oo+5J9kNQeE6j/h3r5qnjg32M+XQl9hDKfg/btqf0KoeyDq/rQXFVsDSA=="],
 
-    "@rescript/linux-arm64": ["@rescript/linux-arm64@12.0.0-beta.4", "", { "os": "linux", "cpu": "arm64" }, "sha512-UHClm/Gsdv5v2kLgEhkqfIsDeYSIuACGmHWPhskg93+EjeBHpPWr4DG/8XdhywZfTFgIGsIYzpZ3ejRfKq5X+Q=="],
+    "@rescript/linux-arm64": ["@rescript/linux-arm64@12.0.0-rc.5", "", { "os": "linux", "cpu": "arm64" }, "sha512-6YHdSUYU+vBYXCqCxQve3CLHUqp8ojUV9476n7qxdYM36bWTvglnZae/SqMhGASwhviyXFumJDH15FLfUGpiZg=="],
 
-    "@rescript/linux-x64": ["@rescript/linux-x64@12.0.0-beta.4", "", { "os": "linux", "cpu": "x64" }, "sha512-c7ueadv9lhK77sCi9zfQPkaz4vmzoW4U2b4GgUqkSzDlOxYT3ttWiC2+deGBJ26Q7CsWL/kFb0Hp2rydjkkexw=="],
+    "@rescript/linux-x64": ["@rescript/linux-x64@12.0.0-rc.5", "", { "os": "linux", "cpu": "x64" }, "sha512-qS/1x6v2CdVuDIgMF3BnyxSwQ/QGwrrkhH4L1wjgS58STURDlwSxsEeS/tZca1v8TFbRKbMOi4KaWyyRuivgRA=="],
 
-    "@rescript/win32-x64": ["@rescript/win32-x64@12.0.0-beta.4", "", { "os": "win32", "cpu": "x64" }, "sha512-qMhBvqQp0wnKp+z1do79NHb/j3t50946P4QH01/ErtJpTLEJUyx6OzaEaNu5r4iu+AXAKtFG26497JICvuTWJg=="],
+    "@rescript/runtime": ["@rescript/runtime@12.0.0-rc.5", "", {}, "sha512-IkjXDr2hlMJDlJCVk1QlDR3r1sSKAJg8xnBq3Uh4IO0FToeMmeSYv/xh0j0YrInzCwgq6RmYgsyYS+ornEepJw=="],
+
+    "@rescript/win32-x64": ["@rescript/win32-x64@12.0.0-rc.5", "", { "os": "win32", "cpu": "x64" }, "sha512-kWAjl9nAsUntpMERAJE3c6EKRR6hl6tVB/9LzPkgvBLrX8m5FkPGUeeD4UJihTD2+BxC4BfLak4yOrENqMBA9g=="],
 
     "@rollup/rollup-android-arm-eabi": ["@rollup/rollup-android-arm-eabi@4.45.1", "", { "os": "android", "cpu": "arm" }, "sha512-NEySIFvMY0ZQO+utJkgoMiCAjMrGvnbDLHvcmlA33UXJpYBCvlBEbMMtV837uCkS+plG2umfhn0T5mMAxGrlRA=="],
 
@@ -165,7 +172,7 @@
 
     "prettier": ["prettier@3.6.2", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ=="],
 
-    "rescript": ["rescript@12.0.0-beta.4", "", { "optionalDependencies": { "@rescript/darwin-arm64": "12.0.0-beta.4", "@rescript/darwin-x64": "12.0.0-beta.4", "@rescript/linux-arm64": "12.0.0-beta.4", "@rescript/linux-x64": "12.0.0-beta.4", "@rescript/win32-x64": "12.0.0-beta.4" }, "bin": { "bsc": "cli/bsc.js", "rescript": "cli/rescript.js", "bstracing": "cli/bstracing.js", "rescript-tools": "cli/rescript-tools.js", "rescript-legacy": "cli/rescript-legacy.js" } }, "sha512-Le3fnsa6MUDecmpnfIuJMA8cXraRLrdEd4Ho2m5OavTKbWgINzJiG3sqlnF1yPpWNPZ3nL5D8oRNakcpp1fbtg=="],
+    "rescript": ["rescript@12.0.0-rc.5", "", { "dependencies": { "@rescript/runtime": "12.0.0-rc.5" }, "optionalDependencies": { "@rescript/darwin-arm64": "12.0.0-rc.5", "@rescript/darwin-x64": "12.0.0-rc.5", "@rescript/linux-arm64": "12.0.0-rc.5", "@rescript/linux-x64": "12.0.0-rc.5", "@rescript/win32-x64": "12.0.0-rc.5" }, "bin": { "bsc": "cli/bsc.js", "rescript": "cli/rescript.js", "bstracing": "cli/bstracing.js", "rescript-tools": "cli/rescript-tools.js", "rescript-legacy": "cli/rescript-legacy.js" } }, "sha512-4GZRZVbVLD/EoJskfmkVnWPBuA39njQahB+Qy69aeIE20x29AYbW9tuWYl9SE3Ul2zxbTe2Ymg//EQNFN2eWDQ=="],
 
     "rollup": ["rollup@4.45.1", "", { "dependencies": { "@types/estree": "1.0.8" }, "optionalDependencies": { "@rollup/rollup-android-arm-eabi": "4.45.1", "@rollup/rollup-android-arm64": "4.45.1", "@rollup/rollup-darwin-arm64": "4.45.1", "@rollup/rollup-darwin-x64": "4.45.1", "@rollup/rollup-freebsd-arm64": "4.45.1", "@rollup/rollup-freebsd-x64": "4.45.1", "@rollup/rollup-linux-arm-gnueabihf": "4.45.1", "@rollup/rollup-linux-arm-musleabihf": "4.45.1", "@rollup/rollup-linux-arm64-gnu": "4.45.1", "@rollup/rollup-linux-arm64-musl": "4.45.1", "@rollup/rollup-linux-loongarch64-gnu": "4.45.1", "@rollup/rollup-linux-powerpc64le-gnu": "4.45.1", "@rollup/rollup-linux-riscv64-gnu": "4.45.1", "@rollup/rollup-linux-riscv64-musl": "4.45.1", "@rollup/rollup-linux-s390x-gnu": "4.45.1", "@rollup/rollup-linux-x64-gnu": "4.45.1", "@rollup/rollup-linux-x64-musl": "4.45.1", "@rollup/rollup-win32-arm64-msvc": "4.45.1", "@rollup/rollup-win32-ia32-msvc": "4.45.1", "@rollup/rollup-win32-x64-msvc": "4.45.1", "fsevents": "~2.3.2" }, "bin": { "rollup": "dist/bin/rollup" } }, "sha512-4iya7Jb76fVpQyLoiVpzUrsjQ12r3dM7fIVz+4NwoYvZOShknRmiv+iu9CClZml5ZLGb0XMcYLutK6w9tgxHDw=="],
 
@@ -184,17 +191,5 @@
     "which": ["which@4.0.0", "", { "dependencies": { "isexe": "^3.1.1" }, "bin": { "node-which": "bin/which.js" } }, "sha512-GlaYyEb07DPxYCKhKzplCWBJtvxZcZMrL+4UkrTSJHHPyZU4mYYTv3qaOe77H7EODLSSopAUFAc6W8U4yqvscg=="],
 
     "@types/node/undici-types": ["undici-types@6.20.0", "", {}, "sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg=="],
-
-    "sample/rescript": ["rescript@12.0.0-beta.2", "", { "optionalDependencies": { "@rescript/darwin-arm64": "12.0.0-beta.2", "@rescript/darwin-x64": "12.0.0-beta.2", "@rescript/linux-arm64": "12.0.0-beta.2", "@rescript/linux-x64": "12.0.0-beta.2", "@rescript/win32-x64": "12.0.0-beta.2" }, "bin": { "bsc": "cli/bsc.js", "rescript": "cli/rescript.js", "bstracing": "cli/bstracing.js", "rescript-tools": "cli/rescript-tools.js", "rescript-legacy": "cli/rescript-legacy.js" } }, "sha512-l+KnrLh1pWFC1pJYrln1+hry/Zhsh25N5mPBGnAWns7ny/aSgXZ7Rr1Dd58AMpccFwXMmJWPKjPb1LqWKI3Crg=="],
-
-    "sample/rescript/@rescript/darwin-arm64": ["@rescript/darwin-arm64@12.0.0-beta.2", "", { "os": "darwin", "cpu": "arm64" }, "sha512-dltaSpmHdvlDrUrpp2lZudBXqiH0Uh5wB37OJcpqaV6FECgImO7fwMJkXfUMjNvY4sIM09lkPKhD+xFbInKmdQ=="],
-
-    "sample/rescript/@rescript/darwin-x64": ["@rescript/darwin-x64@12.0.0-beta.2", "", { "os": "darwin", "cpu": "x64" }, "sha512-Dwf74wfivvytGJdWWyq0HH2lA6IUuaeRGZZnYZVxlteqkygy6+ugmdTRDp993H8ELljHAW8DcIzXLPUlblY0aQ=="],
-
-    "sample/rescript/@rescript/linux-arm64": ["@rescript/linux-arm64@12.0.0-beta.2", "", { "os": "linux", "cpu": "arm64" }, "sha512-2tMVCkDVb5yotBV11ANA4+6Gem0lSabgG9W1F8byOytCf9ngMqLTFilbHsOoNeAyi/kICbHz6U+rblLKWSrQgw=="],
-
-    "sample/rescript/@rescript/linux-x64": ["@rescript/linux-x64@12.0.0-beta.2", "", { "os": "linux", "cpu": "x64" }, "sha512-CCjvQwe/xgkVfBEiP5sEj1e/UoA/bJLeaa2o+7l+nt1mR+7X8p8vfehZlAHJqaH00bNmuPyOcLUf8i3FtrXx0A=="],
-
-    "sample/rescript/@rescript/win32-x64": ["@rescript/win32-x64@12.0.0-beta.2", "", { "os": "win32", "cpu": "x64" }, "sha512-Y1qCehvTFh0KQa0IecfH5Y/qwulDQxXqHLuhIc1I6guVMO76PBi5153JdWMdTAxHV3Z2F/7Z7E2jM6Li1M3mBA=="],
   }
 }

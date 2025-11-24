@@ -3,7 +3,7 @@
 import * as DaxSh from "dax-sh";
 import * as Semver from "semver";
 import * as Picocolors from "picocolors";
-import * as Primitive_exceptions from "rescript/lib/es6/Primitive_exceptions.js";
+import * as Primitive_exceptions from "@rescript/runtime/lib/es6/Primitive_exceptions.js";
 
 async function rescript(param) {
   let rescriptVersionText = await DaxSh.$`rescript --version`.text();
@@ -15,7 +15,7 @@ async function rescript(param) {
       Error: new Error()
     };
   }
-  let platformImport = await import("@rescript/" + process.platform + "-" + process.arch);
+  let platformImport = await import(`@rescript/` + process.platform + `-` + process.arch);
   let rescriptBin;
   if (typeof platformImport === "object" && platformImport !== null && !Array.isArray(platformImport)) {
     let match = platformImport.binPaths;
@@ -79,7 +79,7 @@ async function rescript(param) {
       pluginState.command = resolvedConfig.command;
     },
     buildStart: async () => {
-      pluginState.logger.info(Picocolors.whiteBright("About to build ReScript project with version " + rescriptVersion), {
+      pluginState.logger.info(Picocolors.whiteBright(`About to build ReScript project with version ` + rescriptVersion), {
         timestamp: true
       });
       let match = pluginState.command;
@@ -105,7 +105,7 @@ async function rescript(param) {
       } catch (raw_e) {
         let e = Primitive_exceptions.internalToException(raw_e);
         if (e.RE_EXN_ID === "JsExn") {
-          return pluginState.logger.error(Picocolors.red("Failed to kill rescript watch"), undefined);
+          return pluginState.logger.error(Picocolors.red(`Failed to kill rescript watch`), undefined);
         }
         throw e;
       }

@@ -2,7 +2,7 @@
     "name": "sample",
     "private": true,
     "dependencies": {
-        "rescript": "12.0.0-beta.2"
+        "rescript": "catalog:"
     },
     "devDependencies": {
         "vite": "^7.0.5"

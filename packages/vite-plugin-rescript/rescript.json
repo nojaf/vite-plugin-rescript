@@ -3,5 +3,8 @@
   "sources": ["src"],
   "warnings": {
     "number": "-27"
+  },
+  "js-post-build": {
+    "cmd": "bun run post-build.js"
   }
 }

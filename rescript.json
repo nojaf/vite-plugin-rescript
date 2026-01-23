@@ -9,8 +9,5 @@
   "reanalyze": {
     "analysis": ["dce"],
     "suppress": []
-  },
-  "js-post-build": {
-    "command": "bun build --target=node src/Plugin.res.mjs --outdir . --entry-naming \"index.[ext]\""
   }
 }

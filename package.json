@@ -6,12 +6,11 @@
   ],
   "scripts": {
     "fmt": "rescript format && prettier -l --write *.js *.json",
-    "prebundle": "rescript build",
-    "bundle": "bun build --target=node packages/vite-plugin-rescript/src/Plugin.res.mjs --minify --outdir ./packages/vite-plugin-rescript --entry-naming \"index.[ext]\"",
+    "bundle": "rescript build",
     "analyze": "rescript-tools reanalyze -json"
   },
   "catalog": {
-    "rescript": "12.0.0-rc.5"
+    "rescript": "13.0.0-alpha.1"
   },
   "devDependencies": {
     "keep-a-changelog": "^2.7.1",

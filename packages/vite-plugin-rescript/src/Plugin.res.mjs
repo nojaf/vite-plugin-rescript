@@ -3,15 +3,17 @@
 import * as DaxSh from "dax-sh";
 import * as Semver from "semver";
 import * as Picocolors from "picocolors";
-import * as Primitive_exceptions from "@rescript/runtime/lib/es6/Primitive_exceptions.js";
+import * as Primitive_exceptions from "@rescript/runtime/lib/es6/Primitive_exceptions.mjs";
 
 async function rescript(param) {
   let rescriptVersionText = await DaxSh.$`rescript --version`.text();
   let rescriptVersion = rescriptVersionText.split(" ").at(-1);
-  if (!Semver.satisfies(rescriptVersion, ">=12.0.0-beta.1")) {
+  if (!Semver.satisfies(rescriptVersion, ">=12.0.0", {
+      includePrerelease: true
+    })) {
     throw {
       RE_EXN_ID: "Failure",
-      _1: "Rescript version must be >=12.0.0-beta.1",
+      _1: "Rescript version must be >=12.0.0",
       Error: new Error()
     };
   }

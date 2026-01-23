@@ -25,11 +25,12 @@ external atUnsafe: (array<'t>, int) => 't = "at"
 let rescript = async (_: pluginOptions): vitePlugin => {
   let rescriptVersionText = await sh`rescript --version`->ShellPromise.text
   let rescriptVersion = rescriptVersionText->String.split(" ")->atUnsafe(-1)
-  if !SemVer.satisfies(rescriptVersion, ">=12.0.0-beta.1") {
-    throw(Failure("Rescript version must be >=12.0.0-beta.1"))
+  if !SemVer.satisfies(rescriptVersion, ">=12.0.0", {includePrerelease: true}) {
+    throw(Failure("Rescript version must be >=12.0.0"))
   }
 
   let platformImport = await import(`@rescript/${Process.platform}-${Process.arch}`)
+  // TODO: consider setting the right RESCRIPT_RUNTIME value or allow the user to set it via configuration.
   let rescriptBin = switch platformImport {
   | JSON.Object(dict{
       "binPaths": JSON.Object(dict{"rescript_exe": JSON.String(rescriptBin)}),

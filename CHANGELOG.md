@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.2] - 2026-02-04
+
+- Resolve RESCRIPT_RUNTIME
+
 ## [0.6.1] - 2026-01-23
 
 ### Fixed

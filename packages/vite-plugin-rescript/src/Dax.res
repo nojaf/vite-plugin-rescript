@@ -24,6 +24,9 @@ module ShellPromise = {
 
   @send
   external spawn: t => CommandChild.t = "spawn"
+
+  @send
+  external env: (t, string, string) => t = "env"
 }
 
 @module("dax-sh") @taggedTemplate

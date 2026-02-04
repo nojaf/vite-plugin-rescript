@@ -11,6 +11,10 @@ let ChildProcess = {
 
 let Process = {};
 
+let Url = {};
+
+let ImportMeta = {};
+
 function changeExtension(path, ext) {
   let result = Nodepath.parse(path);
   result.ext = ext;
@@ -41,6 +45,8 @@ let FsPromises = {
 export {
   ChildProcess,
   Process,
+  Url,
+  ImportMeta,
   Path,
   FsPromises,
 }

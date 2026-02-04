@@ -40,6 +40,16 @@ module Process = {
   external arch: string = "arch"
 }
 
+module Url = {
+  @module("node:url")
+  external fileURLToPath: string => string = "fileURLToPath"
+}
+
+module ImportMeta = {
+  @scope("import.meta") @val
+  external resolve: string => string = "resolve"
+}
+
 module Path = {
   @module("node:path")
   external join: (string, string) => string = "join"

@@ -2,6 +2,8 @@
 
 import * as DaxSh from "dax-sh";
 import * as Semver from "semver";
+import * as Nodeurl from "node:url";
+import * as Nodepath from "node:path";
 import * as Picocolors from "picocolors";
 import * as Primitive_exceptions from "@rescript/runtime/lib/es6/Primitive_exceptions.mjs";
 
@@ -46,6 +48,8 @@ async function rescript(param) {
       Error: new Error()
     };
   }
+  let runtimePkgUrl = import.meta.resolve("@rescript/runtime/package.json");
+  let rescriptRuntime = Nodepath.dirname(Nodeurl.fileURLToPath(runtimePkgUrl));
   let pluginState = {
     rescriptBin: rescriptBin,
     logger: {
@@ -86,7 +90,7 @@ async function rescript(param) {
       });
       let match = pluginState.command;
       if (match === "serve") {
-        pluginState.runningRewatch = DaxSh.$`${pluginState.rescriptBin} watch`.noThrow().spawn();
+        pluginState.runningRewatch = DaxSh.$`${pluginState.rescriptBin} watch`.env("RESCRIPT_RUNTIME", rescriptRuntime).noThrow().spawn();
         return;
       }
       await DaxSh.$`rescript build`;

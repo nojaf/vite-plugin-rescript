@@ -30,13 +30,16 @@ let rescript = async (_: pluginOptions): vitePlugin => {
   }
 
   let platformImport = await import(`@rescript/${Process.platform}-${Process.arch}`)
-  // TODO: consider setting the right RESCRIPT_RUNTIME value or allow the user to set it via configuration.
   let rescriptBin = switch platformImport {
   | JSON.Object(dict{
       "binPaths": JSON.Object(dict{"rescript_exe": JSON.String(rescriptBin)}),
     }) => rescriptBin
   | _ => throw(Failure("Failed to resolve rescript.exe"))
   }
+
+  // Resolve RESCRIPT_RUNTIME using import.meta.resolve (pure ESM).
+  let runtimePkgUrl = ImportMeta.resolve("@rescript/runtime/package.json")
+  let rescriptRuntime = runtimePkgUrl->Url.fileURLToPath->Path.dirname
 
   let pluginState: state = {
     rescriptBin,
@@ -83,6 +86,7 @@ let rescript = async (_: pluginOptions): vitePlugin => {
       | Serve =>
         pluginState.runningRewatch = Some(
           sh`${pluginState.rescriptBin} watch`
+          ->ShellPromise.env("RESCRIPT_RUNTIME", rescriptRuntime)
           ->ShellPromise.noThrow
           ->ShellPromise.spawn,
         )
